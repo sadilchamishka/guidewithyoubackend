@@ -1,3 +1,109 @@
+<?php
+require 'vendor/autoload.php';
+
+/* Attempt MySQL server connection. Assuming you are running MySQL
+server with default setting (user 'root' with no password) */
+require_once('connection.php');
+$link = $connection;
+
+// Check connection
+if($link === false){
+    die("ERROR: Could not connect. " . mysqli_connect_error());
+}
+
+if(isset($_POST['submit'])){
+
+    echo $_POST['fname'];
+// Escape user inputs for security
+$first_name = mysqli_real_escape_string($link, $_POST['fname']);
+$last_name = mysqli_real_escape_string($link, $_POST['lname']);
+$email = mysqli_real_escape_string($link, $_POST['email']);
+$dateOfTravel = mysqli_real_escape_string($link, $_POST['dateOfTravel']);
+$phone = mysqli_real_escape_string($link, $_POST['phone']);
+$persons = mysqli_real_escape_string($link, $_POST['persons']);
+$city = mysqli_real_escape_string($link, $_POST['city']);
+$place = mysqli_real_escape_string($link, $_POST['place']);
+$days = mysqli_real_escape_string($link, $_POST['daysSpend']);
+//$email = mysqli_real_escape_string($link, $_REQUEST['email']);
+$privacy = mysqli_real_escape_string($link, $_POST['privacy']);
+
+// Attempt insert query execution
+$sql = "INSERT INTO booking(firstname, lastname, email, date, phone, persons, city, place, days, privacy) VALUES ('$first_name', '$last_name', '$email', '$dateOfTravel', '$phone', '$persons', '$city', '$place', '$days', '$privacy')";
+if(mysqli_query($link, $sql)){
+    echo "Booking successfully. You will get the details of the guide, please check your mail";
+    $from = new SendGrid\Email(null, "sadilchamishka.16@cse.mrt.ac.lk");
+    $subject = "Guide With You, tour guide service provider";
+    $to = new SendGrid\Email(null, $email);
+    $content = new SendGrid\Content("text/plain", "Hello, How are you");
+    $mail = new SendGrid\Mail($from, $subject, $to, $content);
+
+    $apiKey = getenv('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');
+    $sg = new \SendGrid($apiKey);
+
+    $response = $sg->client->mail()->send()->post($mail);
+    echo $response->statusCode();
+    echo $response->headers();
+    echo $response->body();
+} else{
+    echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
+}
+}
+// Close connection
+mysqli_close($link);
+?>
+
+
+<?php
+// these variables for error messeges
+    $nameErr = $emailErr = $phoneErr = $websiteErr = $privacyErr = "";
+    $fname = $lname = $email = $phone = $comment = $website = $privacy = "";
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      if (empty($_POST["fname"])) {
+        $nameErr = "Name is required";
+      } else {
+        $fname = test_input($_POST["fname"]);
+      }
+
+      if (empty($_POST["lname"])) {
+        $nameErr = "Name is required";
+      } else {
+        $lname = test_input($_POST["lname"]);
+      }
+
+      if (empty($_POST["email"])) {
+        $emailErr = "Email is required";
+      } else {
+        $email = test_input($_POST["email"]);
+      }
+
+      if (empty($_POST["privacy"])) {
+        $privacyErr = "Agreement is required";
+      } else {
+        $privacy = test_input($_POST["privacy"]);
+      }
+
+      if (empty($_POST["phone"])) {
+        $phoneErr = "Contact number is required";
+      } else {
+        $phone = test_input($_POST["phone"]);
+      }
+    }
+
+    function test_input($data) {
+      $data = trim($data);
+      $data = stripslashes($data);
+      $data = htmlspecialchars($data);
+      return $data;
+    }
+?>
+
+<!--
+<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>
+-->
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -127,81 +233,31 @@
         <div class="row">
           <div class="col-md-7 mb-5">
 
-<?php
-// these variables for error messeges
-    $nameErr = $emailErr = $phoneErr = $websiteErr = $privacyErr = "";
-    $fname = $lname = $email = $phone = $comment = $website = $privacy = "";
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      if (empty($_POST["fname"])) {
-        $nameErr = "Name is required";
-      } else {
-        $fname = test_input($_POST["fname"]);
-      }
-
-      if (empty($_POST["lname"])) {
-        $nameErr = "Name is required";
-      } else {
-        $lname = test_input($_POST["lname"]);
-      }
-
-      if (empty($_POST["email"])) {
-        $emailErr = "Email is required";
-      } else {
-        $email = test_input($_POST["email"]);
-      }
-
-      if (empty($_POST["privacy"])) {
-        $privacyErr = "Agreement is required";
-      } else {
-        $privacy = test_input($_POST["privacy"]);
-      }
-
-      if (empty($_POST["phone"])) {
-        $phoneErr = "Contact number is required";
-      } else {
-        $phone = test_input($_POST["phone"]);
-      }
-    }
-
-    function test_input($data) {
-      $data = trim($data);
-      $data = stripslashes($data);
-      $data = htmlspecialchars($data);
-      return $data;
-    }
-?>
-
-<!--
-<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>
--->
-
-
-
-            <form class="p-5 bg-white" method="post" action="data.php">
+            <form class="p-5 bg-white" method="POST" action="booking.php">
 
               <p><span class="error">* required fields</span></p>
               <div class="row form-group">
                 <div class="col-md-6 mb-3 mb-md-0">
                   <label class="text-black" for="fname">First Name<span class="error">* <?php echo $nameErr;?></span></label>
-                  <input type="text" id="fname" class="form-control" placeholder="First Name" required autocomplete="fname">
+                  <input type="text" id="fname" name="fname" class="form-control" placeholder="First Name" required autocomplete="fname">
 
                 </div>
                 <div class="col-md-6">
                   <label class="text-black" for="lname">Last Name<span class="error">* <?php echo $nameErr;?></span></label>
-                  <input type="text" id="lname" class="form-control" placeholder="Last Name" required autocomplete="lname">
+                  <input type="text" id="lname" name="lname" class="form-control" placeholder="Last Name" required autocomplete="lname">
                 </div>
               </div>
 
               <div class="row form-group">
                 <div class="col-md-6 mb-3 mb-md-0">
                   <label class="text-black" for="date">Date of Travel<span class="error">* <?php echo $emailErr;?></span></label>
-                  <input type="text" id="dateOfTravel" class="form-control datepicker px-2" placeholder="Date of visit">
+                  <input type="text" id="dateOfTravel" name="dateOfTravel" class="form-control datepicker px-2" placeholder="Date of visit">
                 </div>
                 <div class="col-md-6">
                   <label class="text-black" for="email">Email<span class="error">* <?php echo $emailErr;?></span></label>
 
-                  <input type="email" id="email" class="form-control" placeholder="Email" required autocomplete="email">
+                  <input type="email" id="email" name="email" class="form-control" placeholder="Email" required autocomplete="email">
                 </div>
               </div>
 
@@ -214,8 +270,8 @@
 
               <div class="row form-group">
                 <div class="col-md-12">
-                  <label class="text-black" for="treatment">How Many Person<span class="error"> *</span></label>
-                  <select name="treatment" id="persons" class="form-control">
+                  <label class="text-black" for="persons">How Many Person<span class="error"> *</span></label>
+                  <select name="persons" id="persons" class="form-control">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -227,8 +283,8 @@
 
               <div class="row form-group">
                 <div class="col-md-12">
-                  <label class="text-black" for="treatment">Destination<span class="error"> *</span></label>
-                  <select name="treatment" id="city" class="form-control">
+                  <label class="text-black" for="city">Destination<span class="error"> *</span></label>
+                  <select name="city" id="city" class="form-control">
                     <option value="1">Japan</option>
                     <option value="2">Europe</option>
                     <option value="3">China</option>
@@ -240,8 +296,8 @@
 
               <div class="row form-group">
                 <div class="col-md-12">
-                  <label class="text-black" for="treatment"><span class="error"> </span></label>
-                  <select name="treatment" id="place" class="form-control">
+                  <label class="text-black" for="place"><span class="error"> </span></label>
+                  <select name="place" id="place" class="form-control">
                     <option value="1">Japan</option>
                     <option value="2">Europe</option>
                     <option value="3">China</option>
@@ -253,8 +309,8 @@
 
               <div class="row form-group">
                 <div class="col-md-12">
-                  <label class="text-black" for="treatment">Days Hope to Spend<span class="error"> *</span></label>
-                  <select name="treatment" id="daysSpend" class="form-control">
+                  <label class="text-black" for="daysSpend">Days Hope to Spend<span class="error"> *</span></label>
+                  <select name="daysSpend" id="daysSpend" class="form-control">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>

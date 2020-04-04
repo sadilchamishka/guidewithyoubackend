@@ -1,13 +1,17 @@
 <?php
 /* Attempt MySQL server connection. Assuming you are running MySQL
 server with default setting (user 'root' with no password) */
-$link = mysqli_connect("localhost", "root", "", "demo");
-
+require_once('connection.php');
+$link = $connection;
+echo "************";
 // Check connection
 if($link === false){
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
+if(isset($_POST['submit'])){
+
+    echo $_POST['fname'];
 // Escape user inputs for security
 $first_name = mysqli_real_escape_string($link, $_POST['fname']);
 $last_name = mysqli_real_escape_string($link, $_POST['lname']);
@@ -22,13 +26,13 @@ $days = mysqli_real_escape_string($link, $_POST['daysSpend']);
 $privacy = mysqli_real_escape_string($link, $_POST['privacy']);
 
 // Attempt insert query execution
-$sql = "INSERT INTO customers(first_name, last_name, email, dateOfTravel, phone, persons, city, place, days, privacy) VALUES ('$first_name', '$last_name', '$email', '$dateOfTravel', '$phone', '$persons', '$city', '$place', '$days', '$privacy')";
+$sql = "INSERT INTO customer(first_name, last_name, email, dateOfTravel, phone, persons, city, place, days, privacy) VALUES ('$first_name', '$last_name', '$email', '$dateOfTravel', '$phone', '$persons', '$city', '$place', '$days', '$privacy')";
 if(mysqli_query($link, $sql)){
     echo "Records added successfully.";
 } else{
     echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
 }
-
+}
 // Close connection
 mysqli_close($link);
 ?>

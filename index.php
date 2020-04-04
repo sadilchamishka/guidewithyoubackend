@@ -76,6 +76,7 @@
                 <li><a href="blog.html">Blog</a></li>
 
                 <li><a href="contact.html">Contact</a></li>
+				        <li><a href="registration/registration.php">Join with us</a></li>
                 <!-- <li><a href="booking.html">Book Online</a></li>
 
               -->
