@@ -31,20 +31,22 @@ $privacy = mysqli_real_escape_string($link, $_POST['privacy']);
 $sql = "INSERT INTO booking(firstname, lastname, email, date, phone, persons, city, place, days, privacy) VALUES ('$first_name', '$last_name', '$email', '$dateOfTravel', '$phone', '$persons', '$city', '$place', '$days', '$privacy')";
 if(mysqli_query($link, $sql)){
     echo "Booking successfully. You will get the details of the guide, please check your mail";
-    $from = new SendGrid\Email(null, "sadilchamishka.16@cse.mrt.ac.lk");
-    $subject = "Guide With You, tour guide service provider";
-    $to = new SendGrid\Email(null, $email);
-    $content = new SendGrid\Content("text/plain", "Hello, How are you");
+
+    $from = new SendGrid\Email(null, "sandilchamishka@gmail.com");
+    $subject = "Hello World from the SendGrid PHP Library!";
+    $to = new SendGrid\Email(null, "sandilchamishka@gmail.com");
+    $content = new SendGrid\Content("text/plain", "Hello, Email!");
     $mail = new SendGrid\Mail($from, $subject, $to, $content);
 
-    $apiKey = getenv('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');
+    $apiKey = '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';
     $sg = new \SendGrid($apiKey);
 
     $response = $sg->client->mail()->send()->post($mail);
     echo $response->statusCode();
     echo $response->headers();
-    echo $response->body();
-} else{
+    echo $response->body(); 
+  } 
+else{
     echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
 }
 }
