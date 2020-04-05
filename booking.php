@@ -13,7 +13,6 @@ if($link === false){
 
 if(isset($_POST['submit'])){
 
-    echo $_POST['fname'];
 // Escape user inputs for security
 $first_name = mysqli_real_escape_string($link, $_POST['fname']);
 $last_name = mysqli_real_escape_string($link, $_POST['lname']);
@@ -30,21 +29,21 @@ $privacy = mysqli_real_escape_string($link, $_POST['privacy']);
 // Attempt insert query execution
 $sql = "INSERT INTO booking(firstname, lastname, email, date, phone, persons, city, place, days, privacy) VALUES ('$first_name', '$last_name', '$email', '$dateOfTravel', '$phone', '$persons', '$city', '$place', '$days', '$privacy')";
 if(mysqli_query($link, $sql)){
-    echo "Booking successfully. You will get the details of the guide, please check your mail";
-
-    $from = new SendGrid\Email(null, "sandilchamishka@gmail.com");
-    $subject = "Hello World from the SendGrid PHP Library!";
-    $to = new SendGrid\Email(null, "sandilchamishka@gmail.com");
-    $content = new SendGrid\Content("text/plain", "Hello, Email!");
-    $mail = new SendGrid\Mail($from, $subject, $to, $content);
-
-    $apiKey = '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';
-    $sg = new \SendGrid($apiKey);
-
-    $response = $sg->client->mail()->send()->post($mail);
-    echo $response->statusCode();
-    echo $response->headers();
-    echo $response->body(); 
+    
+    $email123 = new \SendGrid\Mail\Mail();
+    $email123->setFrom("sandilchamishka@gmail.com", "Example User");
+    $email123->setSubject("Guide With You");
+    $email123->addTo($email, "Example User");
+    $email123->addContent(
+        "text/html", "<strong>Welcome to Guide With You</strong>"
+    );
+    $sendgrid = new \SendGrid('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');
+    try {
+        $response = $sendgrid->send($email123);
+        echo "<script>alert('Booking successfully. You will get the details of the guide, please check your mail');</script>";
+    } catch (Exception $e) {
+        echo "<script>alert('Unsuccessfull');</script>";
+    } 
   } 
 else{
     echo "ERROR: Could not able to execute $sql. " . mysqli_error($link);
@@ -154,14 +153,14 @@ mysqli_close($link);
         <div class="row align-items-center">
 
           <div class="col-6 col-xl-2 text-center">
-            <h1 class="mb-0"><a href="index.html" class="text-black h2 mb-0">Guide with You</a></h1>
+            <h1 class="mb-0"><a href="index.php" class="text-black h2 mb-0">Guide with You</a></h1>
           </div>
           <div class="col-6 col-xl-6 d-none d-xl-block text-center">
             <nav class="site-navigation position-relative text-right text-lg-center" role="navigation">
 
               <ul class="site-menu js-clone-nav mx-auto d-none d-lg-block">
                 <li class="active">
-                  <a href="index.html">Home</a>
+                  <a href="index.php">Home</a>
                 </li>
                 <li class="has-children">
                   <a href="destination.html">Destinations</a>
@@ -221,7 +220,7 @@ mysqli_close($link);
 
             <div class="col-md-8" data-aos="fade-up" data-aos-delay="400">
               <h1 class="text-white font-weight-light">Book A Tour</h1>
-              <div><a href="index.html">Home</a> <span class="mx-2 text-white">&bullet;</span> <span class="text-white">Booking</span></div>
+              <div><a href="index.php">Home</a> <span class="mx-2 text-white">&bullet;</span> <span class="text-white">Booking</span></div>
 
             </div>
           </div>
@@ -333,7 +332,7 @@ mysqli_close($link);
                   <label class="text-black" for="note">Notes</label>
                   <textarea name="note" id="note" cols="30" rows="5" class="form-control" placeholder="Write your notes or questions here..."></textarea>
                   <br>
-                  <input type="checkbox" id="privacy" name="privacy" value="privacy">
+                  <input type="checkbox" id="privacy" name="privacy" value="privacy" required>
                   <label for="privacy">   I Agree to the all conditions in <a href="privacy.html">Privacy Policy</a></label>
                 </div>
               </div>
