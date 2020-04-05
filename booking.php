@@ -31,13 +31,15 @@ $sql = "INSERT INTO booking(firstname, lastname, email, date, phone, persons, ci
 if(mysqli_query($link, $sql)){
     
     $email123 = new \SendGrid\Mail\Mail();
-    $email123->setFrom("sandilchamishka@gmail.com", "Example User");
+    $email123->setFrom("sandilchamishka@gmail.com", "Guide With You");
     $email123->setSubject("Guide With You");
-    $email123->addTo($email, "Example User");
+    $email123->addTo($email, $first_name.' '.$last_name);
     $email123->addContent(
         "text/html", "<strong>Welcome to Guide With You</strong>"
     );
-    $sendgrid = new \SendGrid('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');
+    $apiKey = getenv('SENDGRID_API_KEY');
+
+    $sendgrid = new \SendGrid($apiKey);
     try {
         $response = $sendgrid->send($email123);
         echo "<script>alert('Booking successfully. You will get the details of the guide, please check your mail');</script>";
